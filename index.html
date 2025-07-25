@@ -3,512 +3,1857 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flappy Dino - Khủng Long Bay</title>
+    <title>PORTFOLIO LE QUOC VIET</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Nunito:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body {
+        /* Reset và Variables */
+        * {
             margin: 0;
             padding: 0;
-            background: linear-gradient(to bottom, #87CEEB 0%, #98D8E8 50%, #F0E68C 100%);
-            font-family: 'Arial', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #ff00ff;
+            --secondary: #00ffff;
+            --accent: #ffff00;
+            --dark: #0a0a0a;
+            --light: #ffffff;
+            --gradient-1: linear-gradient(135deg, #ff00ff, #00ffff, #ffff00);
+            --gradient-2: linear-gradient(45deg, #ff6b35, #f7931e, #ffdd00);
+            --gradient-3: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --glass: rgba(255, 255, 255, 0.1);
+            --blur: blur(20px);
+        }
+
+        body {
+            font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            background: #0a0a0a;
+            color: var(--light);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: 
+                radial-gradient(circle at 20% 80%, #ff00ff33 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, #00ffff33 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, #ffff0033 0%, transparent 50%);
+            animation: bgShift 20s ease-in-out infinite;
+        }
+
+        @keyframes bgShift {
+            0%, 100% { opacity: 0.3; transform: scale(1) rotate(0deg); }
+            50% { opacity: 0.6; transform: scale(1.1) rotate(180deg); }
+        }
+
+        /* Floating Particles */
+        .particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
             overflow: hidden;
         }
 
-        .game-container {
-            background: linear-gradient(to bottom, #87CEEB 0%, #98D8E8 30%, #90EE90 70%, #228B22 100%);
-            border-radius: 20px;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
-            overflow: hidden;
+        .particle {
+            position: absolute;
+            background: var(--gradient-1);
+            border-radius: 50%;
+            animation: float 15s infinite linear;
+        }
+
+        @keyframes float {
+            from {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            to {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
             position: relative;
-            border: 5px solid #2E8B57;
+            z-index: 1;
         }
 
-        canvas {
-            display: block;
-            cursor: pointer;
-        }
-
-        .game-info {
-            position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            text-align: center;
-            color: #fff;
-            font-size: 28px;
-            font-weight: bold;
-            text-shadow: 3px 3px 6px rgba(0,0,0,0.7);
-            z-index: 10;
-            background: rgba(0,0,0,0.3);
-            padding: 10px 20px;
-            border-radius: 25px;
-            backdrop-filter: blur(10px);
-        }
-
-        .game-over {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            color: #FF4444;
-            font-size: 36px;
-            font-weight: bold;
-            background: rgba(255,255,255,0.95);
+        /* Header với thiết kế futuristic */
+        .header {
+            background: linear-gradient(135deg, rgba(255, 0, 255, 0.1), rgba(0, 255, 255, 0.1));
+            backdrop-filter: var(--blur);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 30px;
             padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            z-index: 20;
-            display: none;
-            border: 3px solid #FF6B6B;
+            margin: 30px 0;
+            position: relative;
+            overflow: hidden;
         }
 
-        .start-screen {
+        .header::before {
+            content: '';
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            color: #2E8B57;
-            font-size: 24px;
-            font-weight: bold;
-            background: rgba(255,255,255,0.9);
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            z-index: 15;
-            border: 3px solid #228B22;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient-1);
+            animation: glow 2s ease-in-out infinite alternate;
         }
 
-        .controls {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
+        @keyframes glow {
+            from { box-shadow: 0 0 20px var(--primary); }
+            to { box-shadow: 0 0 40px var(--secondary); }
+        }
+
+        .header-content {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 60px;
+            align-items: flex-start;
+        }
+
+        /* Profile section với hiệu ứng hologram */
+        .profile-section {
             text-align: center;
-            color: #fff;
-            font-size: 16px;
-            background: rgba(0,0,0,0.4);
-            padding: 10px 20px;
-            border-radius: 25px;
-            backdrop-filter: blur(10px);
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+            position: relative;
+        }
+
+        .profile-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .profile-image {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            border: 1px solid transparent;
+            background: var(--gradient-1);
+            background-clip: padding-box;
+            object-fit: cover;
+            filter: saturate(1.2) contrast(1.1);
+
+            position: relative;
+            z-index: 2;
+        }
+
+        @keyframes profilePulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 30px rgba(255, 0, 255, 0.5); }
+            50% { transform: scale(1.05); box-shadow: 0 0 50px rgba(0, 255, 255, 0.8); }
+        }
+
+        .profile-ring {
+    position: absolute;
+    top: -8px;
+    left: -8px;
+    width: 216px;
+    height: 216px;
+    border: 4px solid;
+    border-color: #FFD700;
+    border-radius: 50%;
+    z-index: 1;
+}
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .profile-info {
+            margin-top: 25px;
+        }
+
+        .name {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: #FFD700;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
         }
 
         .title {
-            font-size: 48px;
-            color: #FF6B6B;
-            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+            font-size: 1.2rem;
+            color: var(--secondary);
+            font-weight: 300;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* Right side content */
+        .header-right {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .portfolio-text {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 4rem;
+            font-weight: 900;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            text-align: center;
             margin-bottom: 20px;
+        }
+
+        /* Contact Header */
+        .contact-header {
+            margin-bottom: 15px;
+        }
+
+        .contact-title-box {
+            background: linear-gradient(135deg, rgba(255, 0, 255, 0.2), rgba(0, 255, 255, 0.2));
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 12px 20px;
+            text-align: center;
+            
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .contact-title-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .contact-title-box:hover::before {
+            left: 100%;
+        }
+
+        .contact-title-box:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 255, 0, 0.3);
+            border-color: var(--accent);
+        }
+
+        /* Contact Grid với glass morphism */
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .contact-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: var(--blur);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 15px 10px;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .contact-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .contact-card:hover::before {
+            left: 100%;
+        }
+
+        .contact-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(255, 0, 255, 0.2);
+            border-color: var(--primary);
+        }
+
+        .contact-icon {
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .contact-label {
+            font-size: 0.75rem;
+            color: var(--secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 3px;
+        }
+
+        .contact-value {
+            font-weight: 600;
+            font-size: 0.9rem;
+            line-height: 1.2;
+        }
+
+        /* NEW LAYOUT - Education and Skills Side by Side */
+        .education-skills-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin: 40px 0;
+            align-items: stretch; /* Đảm bảo 2 card có chiều cao bằng nhau */
+        }
+
+        /* Cards với neon effects */
+        .info-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: var(--blur);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 25px;
+            padding: 40px 30px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            height: 100%; /* Chiều cao bằng nhau */
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 50px rgba(0, 255, 255, 0.15);
+            border-color: var(--secondary);
+        }
+
+        .card-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-align: center;
+        }
+
+        /* Education với timeline effect */
+.education-item {
+    background: linear-gradient(135deg, rgba(255, 0, 255, 0.1), rgba(0, 255, 255, 0.1));
+    border-left: 4px solid var(--gradient-1);
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 20px;
+    position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.education-basic-info {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+    min-height: 57px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.school-name {
+    color: var(--primary);
+    font-weight: 900;
+    font-size: 1.4rem;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    text-align: center;
+    letter-spacing: 1px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.education-details {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.education-detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.education-detail-row:last-child {
+    border-bottom: none;
+}
+
+.detail-label {
+    font-weight: 700;
+    color: var(--accent);
+    font-size: 0.95rem;
+    min-width: 110px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.detail-value {
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-align: right;
+    flex: 1;
+}
+
+.achievements-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.education-title {
+    color: var(--primary);
+    font-weight: 700;
+    font-size: 1.2rem;
+    margin-bottom: 12px;
+}
+
+        .achievement {
+            background: rgba(255, 255, 0, 0.1);
+            border-left: 3px solid var(--accent);
+            border-radius: 10px;
+            padding: 12px;
+            margin: 10px 0;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .achievement:hover {
+            background: rgba(255, 255, 0, 0.2);
+            transform: translateX(10px);
+        }
+
+        /* Skills với progress bars */
+        .skills-grid {
+            display: grid;
+            gap: 15px;
+            margin-top: 20px;
+            flex: 1; /* Chiếm hết không gian còn lại */
+        }
+
+        .skill-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .skill-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--secondary);
+            transform: scale(1.02);
+        }
+
+        .skill-icon {
+            width: 45px;
+            height: 45px;
+            background: var(--gradient-2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .skill-icon img {
+            width: 28px;
+            height: 28px;
+            object-fit: contain;
+        }
+
+        .skill-info {
+            flex: 1;
+        }
+
+        .skill-name {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 6px;
+        }
+
+        .skill-progress {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .skill-progress-bar {
+            height: 100%;
+            background: var(--gradient-1);
+            border-radius: 3px;
+            animation: skillLoad 2s ease-out forwards;
+            transform-origin: left;
+        }
+
+        @keyframes skillLoad {
+            from { transform: scaleX(0); }
+            to { transform: scaleX(1); }
+        }
+
+        /* Portfolio Section - Now Full Width */
+        .portfolio-section {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: var(--blur);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 25px;
+            padding: 40px;
+            margin: 40px 0;
+        }
+
+        .section-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 900;
+            text-align: center;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 40px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* Mặc định 3 cột */
+            grid-template-rows: repeat(2, 1fr); /* 2 hàng */
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .portfolio-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+
+        .portfolio-item:hover {
+            transform: translateY(-15px) rotateY(5deg);
+            box-shadow: 0 30px 60px rgba(255, 0, 255, 0.3);
+        }
+
+        .portfolio-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            transition: all 0.4s ease;
+            filter: saturate(0.8);
+        }
+
+        .portfolio-item:hover .portfolio-image {
+            filter: saturate(1.2) contrast(1.1);
+            transform: scale(1.1);
+        }
+
+        .portfolio-content {
+            padding: 20px;
+        }
+
+        .portfolio-title {
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--accent);
+            margin-bottom: 10px;
+        }
+
+        .portfolio-desc {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .portfolio-hint {
+            font-size: 0.85rem;
+            color: var(--secondary);
+            text-align: center;
+            padding: 10px;
+            background: rgba(0, 255, 255, 0.1);
+            border-radius: 10px;
+            border: 1px solid rgba(0, 255, 255, 0.2);
+        }
+
+        /* Concept Section với 3D effects */
+        .concept-section {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: var(--blur);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 25px;
+            padding: 40px;
+            margin: 40px 0;
+        }
+
+        .concept-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .concept-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.5s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            transform-style: preserve-3d;
+        }
+
+        .concept-item:hover {
+            transform: translateY(-20px) rotateX(10deg) rotateY(10deg);
+            box-shadow: 0 40px 80px rgba(0, 255, 255, 0.3);
+        }
+
+        .concept-image {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            transition: all 0.4s ease;
+        }
+
+        .concept-item:hover .concept-image {
+            filter: hue-rotate(30deg) saturate(1.3);
+        }
+
+        .concept-title {
+            padding: 20px;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(255, 0, 255, 0.1), rgba(0, 255, 255, 0.1));
+        }
+
+        .concept-title h3 {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Video Section với advanced hover effects */
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .video-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.5s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+
+        .video-item:hover {
+            transform: translateY(-15px) scale(1.03);
+            box-shadow: 0 35px 70px rgba(255, 255, 0, 0.2);
+        }
+
+        /* UPDATED: Video thumbnail with real images */
+        .video-thumbnail {
+            width: 100%;
+            height: 200px;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .video-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: all 0.4s ease;
+            filter: brightness(0.8);
+        }
+
+        .video-thumbnail:hover img {
+            transform: scale(1.1);
+            filter: brightness(1);
+        }
+
+        .video-play-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: var(--dark);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            pointer-events: none; 
+            z-index: 10;
+        }
+
+        .video-play-button:hover {
+            background: var(--gradient-1);
+            transform: translate(-50%, -50%) scale(1.1);
+            box-shadow: 0 10px 30px rgba(255, 0, 255, 0.4);
+        }
+
+        /* Lightbox trigger cho thumbnail image (không bao gồm play button) */
+        .video-thumbnail .lightbox-trigger {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 5;
+        }
+
+        .video-content {
+            padding: 25px;
+        }
+
+        .video-title {
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .video-desc {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .video-stats {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 10px 15px;
+            text-align: center;
+            flex: 1;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-number {
+            font-weight: 700;
+            font-size: 1.3rem;
+            color: var(--secondary);
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .video-link {
+            display: block;
+            background: var(--gradient-1);
+            color: var(--dark);
+            text-decoration: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            text-align: center;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .video-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.5s;
+        }
+
+        .video-link:hover::before {
+            transform: translateX(100%);
+        }
+
+        .video-link:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(255, 0, 255, 0.4);
+        }
+
+        /* Lightbox với advanced styling - Updated for video support */
+        .lightbox {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(10px);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .lightbox-content {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            border-radius: 20px;
+            box-shadow: 0 0 100px rgba(255, 0, 255, 0.5);
+            animation: lightboxZoom 0.3s ease-out;
+        }
+
+        /* Video trong lightbox */
+        .lightbox-video {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 20px;
+            box-shadow: 0 0 100px rgba(255, 0, 255, 0.5);
+            animation: lightboxZoom 0.3s ease-out;
+        }
+
+        @keyframes lightboxZoom {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .close-button {
+            position: absolute;
+            top: 30px;
+            right: 40px;
+            color: var(--light);
+            font-size: 3rem;
+            font-weight: 300;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 10001;
+        }
+
+        .close-button:hover {
+            color: var(--primary);
+            transform: rotate(90deg);
+        }
+
+        /* Footer với futuristic design */
+        .footer {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: var(--blur);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 25px;
+            padding: 30px;
+            text-align: center;
+            margin: 40px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--gradient-1);
+            animation: footerGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes footerGlow {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .footer p {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.95rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .concept-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .video-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .portfolio-grid {
+                grid-template-columns: repeat(2, 1fr);
+                grid-template-rows: repeat(3, 1fr); /* 3 hàng trên tablet */
+            }
+
+            .education-skills-section {
+                gap: 30px;
+            }
+        }
+
+        @media (max-width: 968px) {
+            .education-skills-section {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 15px;
+            }
+
+            .header {
+                padding: 25px 20px;
+                margin: 20px 0;
+                border-radius: 20px;
+            }
+
+            .header-content {
+                grid-template-columns: 1fr;
+                gap: 30px;
+                text-align: center;
+            }
+
+            .portfolio-text {
+                font-size: 1.5rem;
+                margin-bottom: 15px;
+            }
+
+            .education-skills-section {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                margin: 20px 0;
+            }
+
+            .contact-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            .contact-card {
+                padding: 12px 8px;
+            }
+
+            .contact-icon {
+                font-size: 1rem;
+                margin-bottom: 6px;
+            }
+
+            .contact-value {
+                font-size: 0.8rem;
+            }
+
+            .profile-image {
+                width: 150px;
+                height: 150px;
+            }
+
+            .profile-ring {
+                width: 170px;
+                height: 170px;
+                top: -10px;
+                left: -10px;
+            }
+
+            .name {
+                font-size: 1.8rem;
+                letter-spacing: 2px;
+            }
+
+            .title {
+                font-size: 1rem;
+            }
+
+            .info-card {
+                padding: 25px 20px;
+            }
+
+            .card-title {
+                font-size: 1.5rem;
+                margin-bottom: 20px;
+            }
+
+            .portfolio-grid,
+            .concept-grid,
+            .video-grid {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto; /* Reset rows trên mobile */
+                gap: 20px;
+            }
+
+            .portfolio-content,
+            .video-content {
+                padding: 20px;
+            }
+
+            .section-title {
+                font-size: 1.8rem;
+                margin-bottom: 25px;
+            }
+
+            .portfolio-section,
+            .concept-section {
+                padding: 25px 20px;
+                margin: 25px 0;
+            }
+
+            .skill-item {
+                padding: 15px;
+            }
+
+            .skill-icon {
+                width: 40px;
+                height: 40px;
+            }
+
+            .skill-icon img {
+                width: 24px;
+                height: 24px;
+            }
+
+            .achievement {
+                padding: 10px;
+                font-size: 0.9rem;
+            }
+
+            .education-item {
+                padding: 20px 15px;
+            }
+
+            .video-stats {
+                gap: 10px;
+            }
+
+            .stat-item {
+                padding: 8px 12px;
+            }
+
+            .stat-number {
+                font-size: 1.1rem;
+            }
+
+            .particles {
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 10px;
+            }
+
+            .header {
+                padding: 20px 15px;
+                margin: 15px 0;
+            }
+
+            .contact-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .contact-card {
+                padding: 15px;
+            }
+
+            .profile-image {
+                width: 120px;
+                height: 120px;
+            }
+
+            .profile-ring {
+                width: 140px;
+                height: 140px;
+            }
+
+            .name {
+                font-size: 1.5rem;
+                letter-spacing: 1px;
+            }
+
+            .title {
+                font-size: 0.9rem;
+            }
+
+            .info-card {
+                padding: 20px 15px;
+            }
+
+            .card-title {
+                font-size: 1.3rem;
+            }
+
+            .section-title {
+                font-size: 1.5rem;
+            }
+
+            .portfolio-section,
+            .concept-section {
+                padding: 20px 15px;
+            }
+
+            .portfolio-content,
+            .video-content {
+                padding: 15px;
+            }
+
+            .portfolio-title,
+            .video-title {
+                font-size: 1rem;
+            }
+
+            .portfolio-desc,
+            .video-desc {
+                font-size: 0.85rem;
+            }
+
+            .bg-animation {
+                opacity: 0.2;
+            }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--gradient-1);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--gradient-2);
         }
     </style>
 </head>
 <body>
-    <div class="game-container">
-        <canvas id="gameCanvas" width="800" height="600"></canvas>
-        
-        <div class="game-info">
-            <div>🦖 Điểm: <span id="score">0</span> 🦖</div>
-        </div>
-        
-        <div class="start-screen" id="startScreen">
-            <div class="title">🦖 FLAPPY DINO 🦖</div>
-            <div style="font-size: 20px; margin: 15px 0; color: #333;">
-                Khủng long bay phiêu lưu!
+    <!-- Animated Background -->
+    <div class="bg-animation"></div>
+    
+    <!-- Floating Particles -->
+    <div class="particles">
+        <div class="particle" style="left: 10%; width: 4px; height: 4px; animation-delay: 0s;"></div>
+        <div class="particle" style="left: 20%; width: 6px; height: 6px; animation-delay: 2s;"></div>
+        <div class="particle" style="left: 30%; width: 3px; height: 3px; animation-delay: 4s;"></div>
+        <div class="particle" style="left: 40%; width: 5px; height: 5px; animation-delay: 6s;"></div>
+        <div class="particle" style="left: 50%; width: 4px; height: 4px; animation-delay: 8s;"></div>
+        <div class="particle" style="left: 60%; width: 6px; height: 6px; animation-delay: 10s;"></div>
+        <div class="particle" style="left: 70%; width: 3px; height: 3px; animation-delay: 12s;"></div>
+        <div class="particle" style="left: 80%; width: 5px; height: 5px; animation-delay: 14s;"></div>
+        <div class="particle" style="left: 90%; width: 4px; height: 4px; animation-delay: 16s;"></div>
+    </div>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <!-- Profile Section -->
+                <div class="profile-section">
+                    <div class="profile-container">
+                        <div class="profile-ring"></div>
+                             <a href="FILE_SANPHAM/AVT/final.jpg" class="lightbox-trigger">
+                                <img src="FILE_SANPHAM/AVT/final.jpg" alt="Lê Quốc Việt" class="profile-image">
+                             </a>
+                        </div>
+                    <div class="profile-info">
+                        <h1 class="name">LÊ QUỐC VIỆT</h1>
+                        <p class="title">CHUYÊN VIÊN THIẾT KẾ ĐỒ HỌA</p>
+                    </div>
+                </div>
+
+                <!-- Right side content -->
+                <div class="header-right">
+                    <div class="portfolio-text">PORTFOLIO</div>
+
+                    <!-- Contact Section -->
+                    <div class="contact-header">
+                        <div class="contact-title-box">LIÊN HỆ</div>
+                    </div>
+                    <div class="contact-grid">
+                        <div class="contact-card">
+                            <span class="contact-icon">📅</span>
+                            <div class="contact-label">Ngày sinh</div>
+                            <div class="contact-value">09/04/2002</div>
+                        </div>
+                        <div class="contact-card">
+                            <span class="contact-icon">📞</span>
+                            <div class="contact-label">Điện thoại</div>
+                            <div class="contact-value">0825094357</div>
+                        </div>
+                        <div class="contact-card">
+                            <span class="contact-icon">📍</span>
+                            <div class="contact-label">Địa chỉ</div>
+                            <div class="contact-value">Bình Đông, TP. HCM</div>
+                        </div>
+                        <div class="contact-card">
+                            <span class="contact-icon">✉️</span>
+                            <div class="contact-label">Email</div>
+                            <div class="contact-value">quocviet.vn02@gmail.com</div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div style="font-size: 16px; color: #666;">
-                Nhấn SPACE hoặc click để bắt đầu
+        </header>
+
+        <!-- Education and Skills Section - Side by Side -->
+        <div class="education-skills-section">
+            <!-- Left Column - Education -->
+            <div class="info-card">
+                <h2 class="card-title">Học Vấn</h2>
+                <div class="education-item">
+<div class="education-basic-info">
+    <div class="school-name">CAO ĐẲNG BÁCH KHOA NAM SÀI GÒN</div>
+    <div class="education-details">
+        <div class="education-detail-row">
+            <span class="detail-label">Chuyên ngành</span>
+            <span class="detail-value">Thiết kế đồ họa</span>
+        </div>
+        <div class="education-detail-row">
+            <span class="detail-label">Thời gian</span>
+            <span class="detail-value">2022 - 2025</span>
+        </div>
+        <div class="education-detail-row">
+            <span class="detail-label">GPA tích lũy</span>
+            <span class="detail-value">3.54 / 4.0</span>
+        </div>
+    </div>
+</div>
+
+<div class="achievements-container">
+    <p><strong>Thành tích nổi bật:</strong></p>
+                        <div class="achievement">
+                            🏆 Giải Nhất - Hội thi "Tôi giỏi nghề, vững bước tương lai" năm học 2023-2024
+                        </div>
+                        <div class="achievement">
+                            📚 Đạt học bổng loại xuất sắc Học kỳ I năm 2023 và Học kỳ II năm 2025
+                        </div>
+                        <div class="achievement">
+                            🎨 Đạt chứng nhận Giỏi nghề cấp Thành phố - Hội thi Học sinh, Sinh viên giỏi nghề chuyên ngành Thiết kế đồ họa năm 2023
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column - Skills -->
+            <div class="info-card">
+                <h2 class="card-title">Kỹ Năng</h2>
+                <div class="skills-grid">
+                    <div class="skill-item">
+                        <div class="skill-icon">
+                            <img src="FILE_SANPHAM/ICON/photoshop.png" alt="Photoshop">
+                        </div>
+                        <div class="skill-info">
+                            <div class="skill-name">Adobe Photoshop</div>
+                            <div class="skill-progress">
+                                <div class="skill-progress-bar" style="width: 80%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="skill-item">
+                        <div class="skill-icon">
+                            <img src="FILE_SANPHAM/ICON/ai.png" alt="Illustrator">
+                        </div>
+                        <div class="skill-info">
+                            <div class="skill-name">Adobe Illustrator</div>
+                            <div class="skill-progress">
+                                <div class="skill-progress-bar" style="width: 90%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="skill-item">
+                        <div class="skill-icon">
+                            <img src="FILE_SANPHAM/ICON/premie.png" alt="Premiere">
+                        </div>
+                        <div class="skill-info">
+                            <div class="skill-name">Adobe Premiere</div>
+                            <div class="skill-progress">
+                                <div class="skill-progress-bar" style="width: 80%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="skill-item">
+                        <div class="skill-icon">
+                            <img src="FILE_SANPHAM/ICON/canva.png" alt="Canva">
+                        </div>
+                        <div class="skill-info">
+                            <div class="skill-name">Canva</div>
+                            <div class="skill-progress">
+                                <div class="skill-progress-bar" style="width: 90%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="skill-item">
+                        <div class="skill-icon">
+                            <img src="FILE_SANPHAM/ICON/capcut.png" alt="CapCut">
+                        </div>
+                        <div class="skill-info">
+                            <div class="skill-name">CapCut</div>
+                            <div class="skill-progress">
+                                <div class="skill-progress-bar" style="width: 85%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-        
-        <div class="game-over" id="gameOver">
-            <div>💥 GAME OVER! 💥</div>
-            <div style="font-size: 24px; margin: 15px 0; color: #333;">
-                Điểm cuối: <span id="finalScore">0</span>
+
+        <!-- Portfolio Section - Full Width -->
+        <section class="portfolio-section">
+            <h2 class="section-title">SẢN PHẨM ĐÃ THIẾT KẾ</h2>
+            <div class="portfolio-grid">
+                <div class="portfolio-item">
+                    <a href="FILE_SANPHAM/DESIGN/COMBO_4GA.jpg" class="lightbox-trigger">
+                        <img src="FILE_SANPHAM/DESIGN/COMBO_4GA.jpg" alt="Design Project 1" class="portfolio-image">
+                    </a>
+                    <div class="portfolio-content">
+                        <h3 class="portfolio-title">ẤN PHẨM TẾT 2025</h3>
+                        <p class="portfolio-desc">Sản phẩm thuộc chiến dịch Tết 2025 của thương hiệu, tôi là người phụ trách chính, chịu trách nhiệm lên ý tưởng, hậu kỳ và thiết kế ấn phẩm truyền thông.</p>
+                        <div class="portfolio-hint">💡 Hãy nhấn vào ảnh để xem kích thước đầy đủ</div>
+                    </div>
+                </div>
+                <div class="portfolio-item">
+                    <a href="FILE_SANPHAM/DESIGN/FB_SanPhamMoi.jpg" class="lightbox-trigger">
+                        <img src="FILE_SANPHAM/DESIGN/FB_SanPhamMoi.jpg" alt="Design Project 2" class="portfolio-image">
+                    </a>
+                    <div class="portfolio-content">
+                        <h3 class="portfolio-title">SẢN PHẨM MỚI</h3>
+                        <p class="portfolio-desc"> Ấn phẩm nằm trong chiến dịch ra mắt sản phẩm mới của Đông Nguyên, được thiết kế cho nền tảng Facebook nhằm truyền thông tiếp cận và kết nối với khách hàng.</p>
+                        <div class="portfolio-hint">💡 Hãy nhấn vào ảnh để xem kích thước đầy đủ</div>
+                    </div>
+                </div>
+                <div class="portfolio-item">
+                    <a href="FILE_SANPHAM/DESIGN/tuyendung.jpg" class="lightbox-trigger">
+                        <img src="FILE_SANPHAM/DESIGN/tuyendung.jpg" alt="Design Project 3" class="portfolio-image">
+                    </a>
+                    <div class="portfolio-content">
+                        <h3 class="portfolio-title">POSTER TUYỂN DỤNG 1</h3>
+                        <p class="portfolio-desc">Poster tuyển dụng được đăng tải Facebook, thể hiện thông tin rõ ràng, nhấn mạnh lợi ích công việc và môi trường làm việc tích cực tại nhà hàng Đông Nguyên.</p>
+                        <div class="portfolio-hint">💡 Hãy nhấn vào ảnh để xem kích thước đầy đủ</div>
+                    </div>
+                </div>
+                <div class="portfolio-item">
+                    <a href="FILE_SANPHAM/DESIGN/TUYỂN DỤNG ĐÔNG NGUYÊN.png" class="lightbox-trigger">
+                        <img src="FILE_SANPHAM/DESIGN/TUYỂN DỤNG ĐÔNG NGUYÊN.png" alt="Design Project 4" class="portfolio-image">
+                    </a>
+                    <div class="portfolio-content">
+                        <h3 class="portfolio-title">POSTER TUYỂN DỤNG 2</h3>
+                        <p class="portfolio-desc">Ấn phẩm tuyển dụng theo phong cách báo tường, kết hợp hình ảnh thực tế nhằm tăng tính chân thật và thu hút ứng viên..</p>
+                        <div class="portfolio-hint">💡 Hãy nhấn vào ảnh để xem kích thước đầy đủ</div>
+                    </div>
+                </div>
+                <div class="portfolio-item">
+                    <a href="FILE_SANPHAM/DESIGN/DONDON.jpg" class="lightbox-trigger">
+                        <img src="FILE_SANPHAM/DESIGN/DONDON.jpg" alt="Design Project 5" class="portfolio-image">
+                    </a>
+                    <div class="portfolio-content">
+                        <h3 class="portfolio-title">SLIDE QUẢNG CÁO TRÌNH CHIẾU TV</h3>
+                        <p class="portfolio-desc">Đây là 1 trong các slide trình chiếu giới thiệu món ăn ưu đãi tại nhà hàng, được hiển thị trên màn hình tivi nhằm thu hút sự chú ý của thực khách.</p>
+                        <div class="portfolio-hint">💡 Hãy nhấn vào ảnh để xem kích thước đầy đủ</div>
+                    </div>
+                </div>
+                <div class="portfolio-item">
+                    <a href="FILE_SANPHAM/DESIGN/NQ_Bienhieu_sang.jpg" class="lightbox-trigger">
+                        <img src="FILE_SANPHAM/DESIGN/NQ_Bienhieu_sang.jpg" alt="Design Project 6" class="portfolio-image">
+                    </a>
+                    <div class="portfolio-content">
+                        <h3 class="portfolio-title">LOGO & BIỂN HIỆU</h3>
+                        <p class="portfolio-desc">Biển hiệu treo tường cho Gia Sư Nhật Quang, thiết kế với bố cục gọn gàng, nhấn mạnh logo NQ và thông tin liên hệ rõ ràng, dễ đọc từ xa.</p>
+                        <div class="portfolio-hint">💡 Hãy nhấn vào ảnh để xem kích thước đầy đủ</div>
+                    </div>
+                </div>
             </div>
-            <div style="font-size: 18px; color: #666;">
-                Nhấn SPACE để chơi lại
+        </section>
+
+        <!-- Concept Section -->
+        <section class="concept-section">
+            <h2 class="section-title">CONCEPT TẾT 2025</h2>
+            <div class="concept-grid">
+                <div class="concept-item">
+                    <a href="FILE_SANPHAM/HINH/CONCEPT/KIMCHI.jpg" class="lightbox-trigger">
+                        <img src="FILE_SANPHAM/HINH/CONCEPT/KIMCHI.jpg" alt="Kim Chi Concept" class="concept-image">
+                    </a>
+                    <div class="concept-title">
+                        <h3>Kim Chi Dưa Cải</h3>
+                    </div>
+                </div>
+                <div class="concept-item">
+                    <a href="FILE_SANPHAM/HINH/CONCEPT/DUIGAXIDAU.jpg" class="lightbox-trigger">
+                        <img src="FILE_SANPHAM/HINH/CONCEPT/DUIGAXIDAU.jpg" alt="Chicken Concept" class="concept-image">
+                    </a>
+                    <div class="concept-title">
+                        <h3>Đùi Gà Xíu Dầu</h3>
+                    </div>
+                </div>
+                <div class="concept-item">
+                    <a href="FILE_SANPHAM/HINH/CONCEPT/SET_THINHSOAN.jpg" class="lightbox-trigger">
+                        <img src="FILE_SANPHAM/HINH/CONCEPT/SET_THINHSOAN.jpg" alt="Premium Set Concept" class="concept-image">
+                    </a>
+                    <div class="concept-title">
+                        <h3>Set Thịnh Soạn</h3>
+                    </div>
+                </div>
+                <div class="concept-item">
+                    <a href="FILE_SANPHAM/HINH/CONCEPT/FANPAGE.jpg" class="lightbox-trigger">
+                        <img src="FILE_SANPHAM/HINH/CONCEPT/FANPAGE.jpg" alt="Social Media Concept" class="concept-image">
+                    </a>
+                    <div class="concept-title">
+                        <h3>Social Media Content</h3>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+<!-- Video Section - FIXED WITH CLICKABLE THUMBNAILS -->
+<section class="concept-section">
+    <h2 class="section-title">VIDEO ĐÃ HẬU KỲ</h2>
+    <div class="video-grid">
+
+        <!-- Video 3 -->
+        <div class="video-item">
+            <div class="video-thumbnail" data-video="/FILE_SANPHAM/VIDEO/HDSD_RTE.mp4">
+                <img src="/FILE_SANPHAM/VIDEO/HDSD_RTE.jpg" alt="Video Thumbnail 3">
+                <div class="video-play-button">▶</div>
+            </div>
+            <div class="video-content">
+                <h3 class="video-title">HƯỚNG DẪN SỬ DỤNG SẢN PHẨM</h3>
+                <p class="video-desc">Video hướng dẫn sử dụng sản phẩm Ready To Eat, một trong các dòng chủ lực.</p>
+                <div class="video-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">14K</span>
+                        <span class="stat-label">Views</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">70</span>
+                        <span class="stat-label">Likes</span>
+                    </div>
+                </div>
+                <a href="https://www.facebook.com/reel/917794553756775" target="_blank" class="video-link">
+                    🎬 LINK VIDEO TRÊN FANPAGE
+                </a>
             </div>
         </div>
-        
-        <div class="controls">
-            🎮 Nhấn SPACE hoặc CLICK để bay lên 🎮
+
+        <!-- Video 5 -->
+        <div class="video-item">
+            <div class="video-thumbnail" data-video="FILE_SANPHAM/VIDEO/289k_SetGaTamBao.mp4">
+                <img src="/FILE_SANPHAM/VIDEO/289k_SetGaTamBao.jpg" alt="Video Thumbnail 5">   
+                <div class="video-play-button">▶</div>
+            </div>
+            <div class="video-content">
+                <h3 class="video-title">289K CHO SET NÀY LÀ ĐẮT HAY RẺ?</h3>
+                <p class="video-desc">Set Gà Tam Bảo chỉ 289K – Video chứng minh sản phẩm ngon, bổ, phù hợp với giá tiền</p>
+                <div class="video-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">9.8K</span>
+                        <span class="stat-label">Views</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">57</span>
+                        <span class="stat-label">Likes</span>
+                    </div>
+                </div>
+                <a href="https://www.facebook.com/reel/3466778100293758" target="_blank" class="video-link">
+                    🎬 LINK VIDEO TRÊN FANPAGE
+                </a>
+            </div>
         </div>
+
+        <!-- Video 8 -->
+        <div class="video-item">
+            <div class="video-thumbnail" data-video="FILE_SANPHAM/VIDEO/FoodStory.mp4">
+                <img src="/FILE_SANPHAM/VIDEO/FoodStory.jpg" alt="Video Thumbnail 8">
+                <div class="video-play-button">▶</div>
+            </div>
+            <div class="video-content">
+                <h3 class="video-title">HỘI CHỢ FOOD STORY 2025</h3>
+                <p class="video-desc">Video giới thiệu quá trình chuẩn bị cho hội chợ Food Story 2025 của Đông Nguyên</p>
+                <div class="video-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">5.7K</span>
+                        <span class="stat-label">Views</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">52</span>
+                        <span class="stat-label">Likes</span>
+                    </div>
+                </div>
+                <a href="https://www.facebook.com/reel/1099931701629437" target="_blank" class="video-link">
+                    🎬 LINK VIDEO TRÊN FANPAGE
+                </a>
+            </div>
+        </div>
+
+        <!-- Video 4 -->
+        <div class="video-item">
+            <div class="video-thumbnail" data-video="FILE_SANPHAM/VIDEO/Thongbao_dathang.mp4">
+                <img src="/FILE_SANPHAM/VIDEO/Thongbao_dathang.jpg" alt="Video Thumbnail 4">
+                <div class="video-play-button">▶</div>
+            </div>
+            <div class="video-content">
+                <h3 class="video-title">THÔNG BÁO VỀ VẤN ĐỀ ĐẶT HÀNG</h3>
+                <p class="video-desc">Thông báo về việc giao hàng cận tết của Cơm Gà Đông Nguyên.</p>
+                <div class="video-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">5.1K</span>
+                        <span class="stat-label">Views</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">40</span>
+                        <span class="stat-label">Likes</span>
+                    </div>
+                </div>
+                <a href="https://www.facebook.com/reel/1675796469813820" target="_blank" class="video-link">
+                    🎬 LINK VIDEO TRÊN FANPAGE
+                </a>
+            </div>
+        </div>
+
+        <!-- Video 6 -->
+        <div class="video-item">
+            <div class="video-thumbnail" data-video="FILE_SANPHAM/VIDEO/ChuanBiTetDN.mp4">
+                <img src="/FILE_SANPHAM/VIDEO/ChuanBiTetDN.jpg" alt="Video Thumbnail 6">
+                <div class="video-play-button">▶</div>
+            </div>
+            <div class="video-content">
+                <h3 class="video-title">CHUẨN BỊ TẾT Ở ĐÔNG NGUYÊN</h3>
+                <p class="video-desc">Video quảng bá món ăn kèm, gia vị nên mua để chuẩn bị cho ngày Tết thêm ngon.</p>
+                <div class="video-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">4.8K</span>
+                        <span class="stat-label">Views</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">38</span>
+                        <span class="stat-label">Likes</span>
+                    </div>
+                </div>
+                <a href="https://www.facebook.com/reel/1324008005630713" target="_blank" class="video-link">
+                    🎬 LINK VIDEO TRÊN FANPAGE
+                </a>
+            </div>
+        </div>
+
+        <!-- Video 7 -->
+        <div class="video-item">
+            <div class="video-thumbnail" data-video="FILE_SANPHAM/VIDEO/GiaViDongNguyen.mp4">
+                <img src="/FILE_SANPHAM/VIDEO/GiaViDongNguyen.jpg" alt="Video Thumbnail 7">
+                <div class="video-play-button">▶</div>
+            </div>
+            <div class="video-content">
+                <h3 class="video-title">BỘ GIA VỊ TẾT ĐÔNG NGUYÊN</h3>
+                <p class="video-desc">Video giới thiệu bộ gia vị Đông Nguyên, đây sản phẩm bán chạy dịp tết của thương hiệu.</p>
+                <div class="video-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">3.8K</span>
+                        <span class="stat-label">Views</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">39</span>
+                        <span class="stat-label">Likes</span>
+                    </div>
+                </div>
+                <a href="https://www.facebook.com/reel/1833868740482314" target="_blank" class="video-link">
+                    🎬 LINK VIDEO TRÊN FANPAGE
+                </a>
+            </div>
+        </div>
+
+        <!-- Video 9 -->
+        <div class="video-item">
+            <div class="video-thumbnail" data-video="FILE_SANPHAM/VIDEO/GiaiDapThacMac.mp4">
+                <img src="/FILE_SANPHAM/VIDEO/GiaiDapThacMac.jpg" alt="Video Thumbnail 9">
+                <div class="video-play-button">▶</div>
+            </div>
+            <div class="video-content">
+                <h3 class="video-title">GIẢI ĐÁP THẮC MẮC PHẦN 2</h3>
+                <p class="video-desc">Video giải đáp một số thắc mắc của khách hàng về sản phẩm của Đông Nguyên - Phần 2</p>
+                <div class="video-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">2.9K</span>
+                        <span class="stat-label">Views</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">30</span>
+                        <span class="stat-label">Likes</span>
+                    </div>
+                </div>
+                <a href="https://www.facebook.com/dongnguyenfood/videos/video9" target="_blank" class="video-link">
+                    🎬 LINK VIDEO TRÊN FANPAGE
+                </a>
+            </div>
+        </div>
+
+        <!-- Video 1 -->
+        <div class="video-item">
+            <div class="video-thumbnail" data-video="FILE_SANPHAM/VIDEO/trend_nhanvienbilieu.mp4">
+                <img src="FILE_SANPHAM/VIDEO/trend_nhanvienbilieu.jpg" alt="Video Thumbnail 1">
+                <div class="video-play-button">▶</div>
+            </div>
+            <div class="video-content">
+                <h3 class="video-title">TREND KHI NHÂN VIÊN BỊ LIỆU</h3>
+                <p class="video-desc">Trend TikTok "AI CẦN EM DÀNH THỜI GIAN CHO ANH", phiên bản rối loạn ngôn ngữ.</p>
+                <div class="video-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">1.0K</span>
+                        <span class="stat-label">Views</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">32</span>
+                        <span class="stat-label">Likes</span>
+                    </div>
+                </div>
+                <a href="https://www.facebook.com/reel/4155027098114913" target="_blank" class="video-link">
+                    🎬 LINK VIDEO TRÊN FANPAGE
+                </a>
+            </div>
+        </div>
+
+        <!-- Video 2 -->
+        <div class="video-item">
+            <div class="video-thumbnail" data-video="FILE_SANPHAM/VIDEO/doctenDONDON.mp4">
+                <img src="FILE_SANPHAM/VIDEO/doctenDONDON.jpg" alt="Video Thumbnail 2">
+                <div class="video-play-button">▶</div>
+            </div>
+            <div class="video-content">
+                <h3 class="video-title">CÁC ĐỌC TÊN DONDON</h3>
+                <p class="video-desc">Video hướng dẫn cách đọc tên DONDON, giúp khách hàng dễ nhớ thương hiệu.</p>
+                <div class="video-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">800</span>
+                        <span class="stat-label">Views</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">21</span>
+                        <span class="stat-label">Likes</span>
+                    </div>
+                </div>
+                <a href="https://www.facebook.com/reel/1794822644686408" target="_blank" class="video-link">
+                    🎬 LINK VIDEO TRÊN FANPAGE
+                </a>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>© 2025 Lê Quốc Việt - Graphic Designer. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <!-- Lightbox -->
+    <div id="lightbox" class="lightbox">
+        <span class="close-button">&times;</span>
+        <img class="lightbox-content" id="lightbox-img">
+        <video class="lightbox-video" id="lightbox-video" controls style="display: none;">
+            Your browser does not support the video tag.
+        </video>
     </div>
 
     <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        const scoreElement = document.getElementById('score');
-        const gameOverElement = document.getElementById('gameOver');
-        const startScreenElement = document.getElementById('startScreen');
-        const finalScoreElement = document.getElementById('finalScore');
+        // Lightbox functionality - Updated for video support
+        document.addEventListener('DOMContentLoaded', function() {
+            const lightbox = document.getElementById('lightbox');
+            const lightboxImg = document.getElementById('lightbox-img');
+            const lightboxVideo = document.getElementById('lightbox-video');
+            const closeButton = document.querySelector('.close-button');
+            const lightboxTriggers = document.querySelectorAll('.lightbox-trigger');
+            const videoThumbnails = document.querySelectorAll('.video-thumbnail');
 
-        // Game state
-        let gameState = 'start'; // 'start', 'playing', 'gameOver'
-        let score = 0;
-        let gameSpeed = 2;
-        let gravity = 0.2;
-        let flapPower = -8;
+            // Lightbox cho ảnh (portfolio và video thumbnails)
+            lightboxTriggers.forEach(trigger => {
+                trigger.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const imageSrc = this.getAttribute('href');
+                    if (imageSrc && imageSrc !== '#') {
+                        openImageLightbox(imageSrc);
+                    }
+                });
+            });
 
-        // Dino (flying dinosaur)
-        const dino = {
-            x: 150,
-            y: canvas.height / 2,
-            width: 60,
-            height: 50,
-            velocityY: 0,
-            rotation: 0,
-            animFrame: 0,
-            wingFlap: 0
+ // FIXED: Video thumbnails - Click anywhere on thumbnail
+videoThumbnails.forEach(thumbnail => {
+    thumbnail.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        const videoSrc = this.getAttribute('data-video');
+        if (videoSrc) {
+            openVideoLightbox(videoSrc);
+        }
+    });
+});
+
+            function openImageLightbox(imageSrc) {
+                lightbox.style.display = 'flex';
+                lightboxImg.src = imageSrc;
+                lightboxImg.style.display = 'block';
+                lightboxVideo.style.display = 'none';
+                lightboxVideo.pause();
+                document.body.style.overflow = 'hidden';
+            }
+
+            function openVideoLightbox(videoSrc) {
+                lightbox.style.display = 'flex';
+                lightboxVideo.src = videoSrc;
+                lightboxVideo.style.display = 'block';
+                lightboxImg.style.display = 'none';
+                lightboxImg.src = '';
+                document.body.style.overflow = 'hidden';
+                
+                // Auto play video
+                lightboxVideo.play().catch(e => {
+                    console.log('Auto-play was prevented:', e);
+                });
+            }
+
+            closeButton.addEventListener('click', closeLightbox);
+            lightbox.addEventListener('click', function(e) {
+                if (e.target === lightbox) {
+                    closeLightbox();
+                }
+            });
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && lightbox.style.display === 'flex') {
+                    closeLightbox();
+                }
+            });
+
+            function closeLightbox() {
+                lightbox.style.display = 'none';
+                lightboxImg.src = '';
+                lightboxImg.style.display = 'block';
+                lightboxVideo.src = '';
+                lightboxVideo.style.display = 'none';
+                lightboxVideo.pause();
+                document.body.style.overflow = 'auto';
+            }
+        });
+
+        // Skill progress animation
+        function animateSkills() {
+            const skillBars = document.querySelectorAll('.skill-progress-bar');
+            skillBars.forEach(bar => {
+                const width = bar.style.width;
+                bar.style.width = '0%';
+                setTimeout(() => {
+                    bar.style.width = width;
+                }, 100);
+            });
+        }
+
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
         };
 
-        // Pipes
-        let pipes = [];
-        let pipeSpawnTimer = 0;
-        const pipeWidth = 80;
-        const pipeGap = 200;
-
-        // Background elements
-        let clouds = [];
-        let trees = [];
-        
-        // Initialize background elements
-        for (let i = 0; i < 6; i++) {
-            clouds.push({
-                x: Math.random() * canvas.width,
-                y: 50 + Math.random() * 150,
-                width: 60 + Math.random() * 40,
-                height: 30 + Math.random() * 20,
-                speed: 0.3 + Math.random() * 0.4
-            });
-        }
-
-        for (let i = 0; i < 10; i++) {
-            trees.push({
-                x: Math.random() * canvas.width,
-                y: canvas.height - 100,
-                width: 20 + Math.random() * 30,
-                height: 60 + Math.random() * 40,
-                speed: 1.5
-            });
-        }
-
-        // Functions
-        function drawBackground() {
-            // Sky gradient
-            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-            gradient.addColorStop(0, '#87CEEB');
-            gradient.addColorStop(0.3, '#98D8E8');
-            gradient.addColorStop(0.7, '#90EE90');
-            gradient.addColorStop(1, '#228B22');
-            ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-        }
-
-        function drawClouds() {
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-            clouds.forEach(cloud => {
-                ctx.save();
-                ctx.shadowColor = 'rgba(0,0,0,0.1)';
-                ctx.shadowBlur = 10;
-                
-                // Draw puffy cloud
-                ctx.beginPath();
-                ctx.arc(cloud.x, cloud.y, cloud.width/4, 0, Math.PI * 2);
-                ctx.arc(cloud.x + cloud.width/3, cloud.y, cloud.width/3, 0, Math.PI * 2);
-                ctx.arc(cloud.x + cloud.width/2, cloud.y, cloud.width/4, 0, Math.PI * 2);
-                ctx.fill();
-                
-                ctx.restore();
-                
-                if (gameState === 'playing') {
-                    cloud.x -= cloud.speed;
-                    if (cloud.x + cloud.width < 0) {
-                        cloud.x = canvas.width + Math.random() * 200;
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animationPlayState = 'running';
+                    if (entry.target.classList.contains('skills-grid')) {
+                        setTimeout(animateSkills, 200);
                     }
                 }
             });
-        }
+        }, observerOptions);
 
-        function drawTrees() {
-            trees.forEach(tree => {
-                // Tree trunk
-                ctx.fillStyle = '#8B4513';
-                ctx.fillRect(tree.x, tree.y, tree.width/3, tree.height);
-                
-                // Tree crown
-                ctx.fillStyle = '#228B22';
-                ctx.beginPath();
-                ctx.arc(tree.x + tree.width/6, tree.y, tree.width/2, 0, Math.PI * 2);
-                ctx.fill();
-                
-                if (gameState === 'playing') {
-                    tree.x -= tree.speed;
-                    if (tree.x + tree.width < 0) {
-                        tree.x = canvas.width + Math.random() * 100;
-                    }
-                }
-            });
-        }
-
-        function drawDino() {
-            ctx.save();
-            ctx.translate(dino.x + dino.width/2, dino.y + dino.height/2);
-            ctx.rotate(dino.rotation);
-            
-            // Wing flapping animation
-            dino.wingFlap = Math.sin(dino.animFrame * 0.3) * 0.3;
-            
-            // Shadow
-            ctx.fillStyle = 'rgba(0,0,0,0.2)';
-            ctx.fillRect(-dino.width/2 + 2, -dino.height/2 + 2, dino.width, dino.height);
-            
-            // Main body
-            ctx.fillStyle = '#FF6B47';
-            ctx.fillRect(-15, -20, 40, 35);
-            
-            // Head (hướng về phía trước)
-            ctx.fillStyle = '#FF8C69';
-            ctx.fillRect(15, -25, 30, 25);
-            
-            // Eye
-            ctx.fillStyle = '#000';
-            ctx.beginPath();
-            ctx.arc(25, -15, 4, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Eye shine
-            ctx.fillStyle = '#fff';
-            ctx.beginPath();
-            ctx.arc(27, -17, 1.5, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Beak/Snout (hướng về phía trước)
-            ctx.fillStyle = '#FF4500';
-            ctx.fillRect(45, -18, 12, 8);
-            
-            // Wings (animated)
-            ctx.fillStyle = '#FF6347';
-            // Upper wing
-            ctx.save();
-            ctx.rotate(dino.wingFlap);
-            ctx.fillRect(-15, -30, 35, 15);
-            ctx.restore();
-            
-            // Lower wing
-            ctx.save();
-            ctx.rotate(-dino.wingFlap);
-            ctx.fillRect(-15, 5, 35, 15);
-            ctx.restore();
-            
-            // Tail (hướng về phía sau)
-            ctx.fillStyle = '#FF8C69';
-            ctx.fillRect(-35, -10, 25, 15);
-            
-            // Spikes on back
-            ctx.fillStyle = '#FF4500';
-            for (let i = 0; i < 3; i++) {
-                ctx.beginPath();
-                ctx.moveTo(-5 + i * 10, -20);
-                ctx.lineTo(0 + i * 10, -35);
-                ctx.lineTo(5 + i * 10, -20);
-                ctx.fill();
-            }
-            
-            // Legs
-            ctx.fillStyle = '#FF6B47';
-            ctx.fillRect(-10, 10, 8, 15);
-            ctx.fillRect(5, 10, 8, 15);
-            
-            ctx.restore();
-            dino.animFrame++;
-        }
-
-        function drawPipes() {
-            pipes.forEach(pipe => {
-                // Pipe gradient
-                const pipeGradient = ctx.createLinearGradient(pipe.x, 0, pipe.x + pipeWidth, 0);
-                pipeGradient.addColorStop(0, '#228B22');
-                pipeGradient.addColorStop(0.5, '#32CD32');
-                pipeGradient.addColorStop(1, '#228B22');
-                
-                // Top pipe
-                ctx.fillStyle = pipeGradient;
-                ctx.fillRect(pipe.x, 0, pipeWidth, pipe.topHeight);
-                
-                // Top pipe cap
-                ctx.fillStyle = '#006400';
-                ctx.fillRect(pipe.x - 10, pipe.topHeight - 30, pipeWidth + 20, 30);
-                
-                // Bottom pipe
-                ctx.fillStyle = pipeGradient;
-                ctx.fillRect(pipe.x, pipe.bottomY, pipeWidth, canvas.height - pipe.bottomY);
-                
-                // Bottom pipe cap
-                ctx.fillStyle = '#006400';
-                ctx.fillRect(pipe.x - 10, pipe.bottomY, pipeWidth + 20, 30);
-                
-                // Pipe highlights
-                ctx.fillStyle = 'rgba(255,255,255,0.3)';
-                ctx.fillRect(pipe.x + 5, 0, 10, pipe.topHeight);
-                ctx.fillRect(pipe.x + 5, pipe.bottomY, 10, canvas.height - pipe.bottomY);
-            });
-        }
-
-        function updateDino() {
-            if (gameState === 'playing') {
-                // Apply gravity
-                dino.velocityY += gravity;
-                dino.y += dino.velocityY;
-                
-                // Rotation based on velocity
-                dino.rotation = Math.min(Math.max(dino.velocityY * 0.05, -0.5), 0.5);
-                
-                // Prevent going off screen
-                if (dino.y < 0) {
-                    dino.y = 0;
-                    dino.velocityY = 0;
-                }
-                if (dino.y + dino.height > canvas.height) {
-                    gameOver();
-                }
-            }
-        }
-
-        function updatePipes() {
-            if (gameState === 'playing') {
-                // Move pipes
-                pipes.forEach(pipe => {
-                    pipe.x -= gameSpeed;
-                    
-                    // Score when passing pipe
-                    if (!pipe.passed && pipe.x + pipeWidth < dino.x) {
-                        pipe.passed = true;
-                        score++;
-                        scoreElement.textContent = score;
-                        
-                        // Increase speed every 5 points
-                        if (score % 5 === 0) {
-                            gameSpeed += 0.2;
-                        }
-                    }
-                });
-                
-                // Remove off-screen pipes
-                pipes = pipes.filter(pipe => pipe.x + pipeWidth > 0);
-                
-                // Spawn new pipes
-                pipeSpawnTimer++;
-                if (pipeSpawnTimer > 120) {
-                    spawnPipe();
-                    pipeSpawnTimer = 0;
-                }
-            }
-        }
-
-        function spawnPipe() {
-            const minHeight = 50;
-            const maxHeight = canvas.height - pipeGap - minHeight;
-            const topHeight = minHeight + Math.random() * (maxHeight - minHeight);
-            
-            pipes.push({
-                x: canvas.width,
-                topHeight: topHeight,
-                bottomY: topHeight + pipeGap,
-                passed: false
-            });
-        }
-
-        function checkCollisions() {
-            if (gameState === 'playing') {
-                pipes.forEach(pipe => {
-                    // Check collision with pipes
-                    if (dino.x + dino.width > pipe.x &&
-                        dino.x < pipe.x + pipeWidth &&
-                        (dino.y < pipe.topHeight || dino.y + dino.height > pipe.bottomY)) {
-                        gameOver();
-                    }
-                });
-            }
-        }
-
-        function flap() {
-            if (gameState === 'start') {
-                startGame();
-            } else if (gameState === 'playing') {
-                dino.velocityY = flapPower;
-            } else if (gameState === 'gameOver') {
-                resetGame();
-            }
-        }
-
-        function startGame() {
-            gameState = 'playing';
-            startScreenElement.style.display = 'none';
-            dino.velocityY = flapPower;
-        }
-
-        function gameOver() {
-            gameState = 'gameOver';
-            finalScoreElement.textContent = score;
-            gameOverElement.style.display = 'block';
-        }
-
-        function resetGame() {
-            gameState = 'start';
-            score = 0;
-            gameSpeed = 2;
-            dino.y = canvas.height / 2;
-            dino.velocityY = 0;
-            dino.rotation = 0;
-            pipes = [];
-            pipeSpawnTimer = 0;
-            scoreElement.textContent = '0';
-            gameOverElement.style.display = 'none';
-            startScreenElement.style.display = 'block';
-        }
-
-        function gameLoop() {
-            // Clear canvas
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Draw everything
-            drawBackground();
-            drawClouds();
-            drawTrees();
-            drawPipes();
-            drawDino();
-            
-            // Update game
-            updateDino();
-            updatePipes();
-            checkCollisions();
-            
-            requestAnimationFrame(gameLoop);
-        }
-
-        // Event listeners
-        document.addEventListener('keydown', (e) => {
-            if (e.code === 'Space') {
-                e.preventDefault();
-                flap();
-            }
+        // Observe elements for animation
+        document.querySelectorAll('.info-card, .portfolio-item, .concept-item, .video-item').forEach(el => {
+            observer.observe(el);
         });
 
-        canvas.addEventListener('click', flap);
+        // Random particle generation
+        function createParticle() {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.width = Math.random() * 4 + 2 + 'px';
+            particle.style.height = particle.style.width;
+            particle.style.animationDelay = Math.random() * 15 + 's';
+            document.querySelector('.particles').appendChild(particle);
 
-        // Touch controls
-        canvas.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            flap();
-        });
+            // Remove particle after animation
+            setTimeout(() => {
+                particle.remove();
+            }, 15000);
+        }
 
-        // Start the game loop
-        gameLoop();
+        // Create particles periodically
+        setInterval(createParticle, 2000);
+
+        // Smooth scrolling for better UX
+        document.documentElement.style.scrollBehavior = 'smooth';
     </script>
 </body>
 </html>
